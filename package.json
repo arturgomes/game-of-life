@@ -1,13 +1,28 @@
 {
   "name": "game-of-life",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Conway's Game of Life - Production-Ready Scalable API",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check .",
+    "lint:fix": "biome check --apply .",
+    "format": "biome format --write ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
 }
