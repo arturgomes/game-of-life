@@ -322,7 +322,7 @@ describe('Board Routes Integration Tests', () => {
   });
 
   describe('R4: POST /boards/:boardId/final', () => {
-    it('should return 501 Not Implemented', async () => {
+    it('should return 202 with WebSocket URL for valid request', async () => {
       // Create a board first
       const createResponse = await request(app)
         .post('/boards')
@@ -331,14 +331,94 @@ describe('Board Routes Integration Tests', () => {
 
       testBoardId = createResponse.body.data.boardId;
 
-      // Try to get final state (not implemented yet)
+      // Request final state calculation
       const response = await request(app)
         .post(`/boards/${testBoardId}/final`)
         .send({ maxAttempts: 100 })
-        .expect(501);
+        .expect(202);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.data).toHaveProperty('message', 'Final state calculation initiated');
+      expect(response.body.data).toHaveProperty('websocketUrl');
+      expect(response.body.data.websocketUrl).toContain(`/ws?boardId=${testBoardId}&maxAttempts=100`);
+    });
+
+    it('should return 400 for missing maxAttempts', async () => {
+      // Create a board first
+      const createResponse = await request(app)
+        .post('/boards')
+        .send({ board: blockPattern })
+        .expect(201);
+
+      testBoardId = createResponse.body.data.boardId;
+
+      // Request final state without maxAttempts
+      const response = await request(app)
+        .post(`/boards/${testBoardId}/final`)
+        .send({})
+        .expect(400);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Not implemented yet');
+      expect(response.body).toHaveProperty('error', 'maxAttempts must be a positive number');
+    });
+
+    it('should return 400 for invalid maxAttempts (negative)', async () => {
+      // Create a board first
+      const createResponse = await request(app)
+        .post('/boards')
+        .send({ board: blockPattern })
+        .expect(201);
+
+      testBoardId = createResponse.body.data.boardId;
+
+      // Request final state with negative maxAttempts
+      const response = await request(app)
+        .post(`/boards/${testBoardId}/final`)
+        .send({ maxAttempts: -1 })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('error', 'maxAttempts must be a positive number');
+    });
+
+    it('should return 400 for invalid maxAttempts (zero)', async () => {
+      // Create a board first
+      const createResponse = await request(app)
+        .post('/boards')
+        .send({ board: blockPattern })
+        .expect(201);
+
+      testBoardId = createResponse.body.data.boardId;
+
+      // Request final state with zero maxAttempts
+      const response = await request(app)
+        .post(`/boards/${testBoardId}/final`)
+        .send({ maxAttempts: 0 })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('error', 'maxAttempts must be a positive number');
+    });
+
+    it('should return 404 for non-existent boardId', async () => {
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const response = await request(app)
+        .post(`/boards/${nonExistentId}/final`)
+        .send({ maxAttempts: 100 })
+        .expect(404);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('error', 'Board not found');
+    });
+
+    it('should return 400 for invalid UUID format', async () => {
+      const response = await request(app)
+        .post('/boards/invalid-uuid/final')
+        .send({ maxAttempts: 100 })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
     });
   });
 });
