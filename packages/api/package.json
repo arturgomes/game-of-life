@@ -11,7 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@game-of-life/shared": "workspace:*",
+    "@game-of-life/shared": "1.0.0",
     "express": "^4.21.2",
     "mongoose": "^8.9.3",
     "redis": "^4.7.0",
