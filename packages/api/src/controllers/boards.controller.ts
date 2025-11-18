@@ -1,6 +1,6 @@
 import { createBoardId, errorResponse, successResponse } from '@game-of-life/shared';
 import type { NextFunction, Request, Response } from 'express';
-import { createBoard, getNextGeneration, getStateAtGeneration } from '../services/board.service.js';
+import { createBoard, getBoardById, getNextGeneration, getStateAtGeneration } from '../services/board.service.js';
 
 /**
  * R1: POST /boards - Upload new board state
@@ -87,8 +87,43 @@ export async function getStateAtGenerationController(
 
 /**
  * R4: POST /boards/:boardId/final - Get final stabilized state (real-time)
- * TODO: Implement with WebSocket streaming
+ * Returns 202 Accepted with WebSocket URL for streaming updates
  */
-export function getFinalStateController(_req: Request, res: Response): void {
-  res.status(501).json(errorResponse('Not implemented yet'));
+export async function getFinalStateController(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { boardId } = req.params;
+    const { maxAttempts } = req.body;
+
+    if (!boardId) {
+      res.status(400).json(errorResponse('BoardId is required'));
+      return;
+    }
+
+    if (!maxAttempts || typeof maxAttempts !== 'number' || maxAttempts <= 0) {
+      res.status(400).json(errorResponse('maxAttempts must be a positive number'));
+      return;
+    }
+
+    // Check if board exists
+    const boardExists = await getBoardById(createBoardId(boardId));
+    if (!boardExists.success) {
+      res.status(404).json(errorResponse('Board not found'));
+      return;
+    }
+
+    // Build WebSocket URL with query parameters
+    const protocol = process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
+    const host = req.get('host') ?? 'localhost:3000';
+    const websocketUrl = `${protocol}://${host}/ws?boardId=${boardId}&maxAttempts=${maxAttempts}`;
+
+    // Return 202 Accepted with WebSocket URL
+    res.status(202).json(
+      successResponse({
+        message: 'Final state calculation initiated',
+        websocketUrl,
+      }),
+    );
+  } catch (error) {
+    next(error);
+  }
 }
