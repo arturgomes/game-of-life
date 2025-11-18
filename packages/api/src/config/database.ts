@@ -10,7 +10,9 @@ const MONGODB_URI = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/game-o
 export async function connectDatabase(): Promise<Result<void, string>> {
   try {
     await mongoose.connect(MONGODB_URI, {
+      // biome-ignore lint/style/useNamingConvention: explicit from mongodb docs https://www.mongodb.com/docs/manual/reference/connection-string-options/#mongodb-urioption-urioption.serverSelectionTimeoutMS
       serverSelectionTimeoutMS: 5000,
+      // biome-ignore lint/style/useNamingConvention: explicit from mongodb docs https://www.mongodb.com/docs/manual/reference/connection-string-options/#mongodb-urioption-urioption.serverSelectionTimeoutMS
       socketTimeoutMS: 45000,
     });
 
