@@ -225,5 +225,120 @@ describe('Board Routes Integration Tests', () => {
 
       expect(firstResponse.body.data.state).toEqual(secondResponse.body.data.state);
     });
+
+    it('should return 400 for invalid UUID format', async () => {
+      // Use invalid UUID format
+      const invalidBoardId = 'not-a-uuid';
+
+      const response = await request(app).get(`/boards/${invalidBoardId}/state/5`).expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error).toContain('Validation error');
+    });
+
+    it('should return 400 for negative generation', async () => {
+      // Create board
+      const createResponse = await request(app)
+        .post('/boards')
+        .send({ board: blockPattern })
+        .expect(201);
+
+      testBoardId = createResponse.body.data.boardId;
+
+      // Try to get negative generation
+      const response = await request(app).get(`/boards/${testBoardId}/state/-5`).expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error).toContain('Validation error');
+    });
+  });
+
+  describe('R1: POST /boards', () => {
+    it('should create board and return boardId', async () => {
+      const response = await request(app).post('/boards').send({ board: blockPattern }).expect(201);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('boardId');
+      expect(typeof response.body.data.boardId).toBe('string');
+
+      // Verify boardId is UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      expect(uuidRegex.test(response.body.data.boardId)).toBe(true);
+    });
+
+    it('should return 400 for invalid board (not 2D array)', async () => {
+      const response = await request(app).post('/boards').send({ board: [1, 2, 3] }).expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error).toContain('Validation error');
+    });
+
+    it('should return 400 for invalid board (non-array)', async () => {
+      const response = await request(app).post('/boards').send({ board: 'invalid' }).expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error).toContain('Validation error');
+    });
+
+    it('should return 400 for missing board field', async () => {
+      const response = await request(app).post('/boards').send({}).expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error).toContain('Validation error');
+    });
+
+    it('should return 400 for empty board array', async () => {
+      const response = await request(app).post('/boards').send({ board: [] }).expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.error).toContain('Validation error');
+    });
+
+    it('should handle large sparse board', async () => {
+      // Create 100x100 board with only a few live cells (glider pattern)
+      const largeBoard: (0 | 1)[][] = Array.from({ length: 100 }, () =>
+        Array.from({ length: 100 }, () => 0 as 0 | 1),
+      );
+
+      // Add glider in center
+      const row50 = largeBoard[50];
+      const row51 = largeBoard[51];
+      const row52 = largeBoard[52];
+
+      if (row50 && row51 && row52) {
+        row50[51] = 1;
+        row51[52] = 1;
+        row52[50] = 1;
+        row52[51] = 1;
+        row52[52] = 1;
+      }
+
+      const response = await request(app).post('/boards').send({ board: largeBoard }).expect(201);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.data).toHaveProperty('boardId');
+    });
+  });
+
+  describe('R4: POST /boards/:boardId/final', () => {
+    it('should return 501 Not Implemented', async () => {
+      // Create a board first
+      const createResponse = await request(app)
+        .post('/boards')
+        .send({ board: blockPattern })
+        .expect(201);
+
+      testBoardId = createResponse.body.data.boardId;
+
+      // Try to get final state (not implemented yet)
+      const response = await request(app)
+        .post(`/boards/${testBoardId}/final`)
+        .send({ maxAttempts: 100 })
+        .expect(501);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('error', 'Not implemented yet');
+    });
   });
 });
