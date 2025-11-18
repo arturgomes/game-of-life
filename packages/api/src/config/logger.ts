@@ -13,26 +13,30 @@ import pinoHttp from 'pino-http';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Base logger configuration
-export const logger = pino({
+const loggerOptions: pino.LoggerOptions = {
   level: process.env.LOG_LEVEL ?? (isDevelopment ? 'debug' : 'info'),
-  transport: isDevelopment
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'HH:MM:ss',
-          ignore: 'pid,hostname',
-          singleLine: false,
-        },
-      }
-    : undefined,
   formatters: {
     level: (label) => {
       return { level: label };
     },
   },
   timestamp: pino.stdTimeFunctions.isoTime,
-});
+};
+
+// Add transport only in development
+if (isDevelopment) {
+  loggerOptions.transport = {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname',
+      singleLine: false,
+    },
+  };
+}
+
+export const logger = pino(loggerOptions);
 
 // HTTP request logger middleware for Express
 export const httpLogger = pinoHttp({
