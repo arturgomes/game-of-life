@@ -1,7 +1,14 @@
+import {
+  boardIdParamSchema,
+  createBoardRequestSchema,
+  errorResponse,
+  generationParamSchema,
+  successResponse,
+} from '@game-of-life/shared';
+import { createBoardId } from '@game-of-life/shared';
 import express, { type Request, type Response, type NextFunction } from 'express';
-import { createBoardRequestSchema, successResponse, errorResponse } from '@game-of-life/shared';
 import { validate } from '../middleware/validate.js';
-import { createBoard } from '../services/board.service.js';
+import { createBoard, getNextGeneration, getStateAtGeneration } from '../services/board.service.js';
 
 /**
  * Board routes
@@ -38,19 +45,68 @@ boardsRouter.post(
 
 /**
  * R2: GET /boards/:boardId/next - Get single next generation
- * TODO: Implement next generation calculation
+ * Output: Next board state (2D Array)
  */
-boardsRouter.get('/:boardId/next', (_req: Request, res: Response): void => {
-  res.status(501).json(errorResponse('Not implemented yet'));
-});
+boardsRouter.get(
+  '/:boardId/next',
+  validate(boardIdParamSchema, 'params'),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { boardId } = req.params;
+
+      if (!boardId) {
+        res.status(400).json(errorResponse('BoardId is required'));
+        return;
+      }
+
+      const result = await getNextGeneration(createBoardId(boardId));
+
+      if (!result.success) {
+        const status = result.error === 'Board not found' ? 404 : 500;
+        res.status(status).json(errorResponse(result.error));
+        return;
+      }
+
+      res.status(200).json(successResponse({ state: result.data }));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 /**
  * R3: GET /boards/:boardId/state/:generation - Get state X generations ahead
- * TODO: Implement X generations calculation
+ * Input: generation (Integer ≥1)
+ * Output: Future board state (2D Array)
  */
-boardsRouter.get('/:boardId/state/:generation', (_req: Request, res: Response): void => {
-  res.status(501).json(errorResponse('Not implemented yet'));
-});
+boardsRouter.get(
+  '/:boardId/state/:generation',
+  validate(generationParamSchema, 'params'),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { boardId, generation } = req.params;
+
+      if (!boardId || !generation) {
+        res.status(400).json(errorResponse('BoardId and generation are required'));
+        return;
+      }
+
+      const generations = Number(generation);
+
+      const result = await getStateAtGeneration(createBoardId(boardId), generations);
+
+      if (!result.success) {
+        const status = result.error === 'Board not found' ? 404 : 400;
+        res.status(status).json(errorResponse(result.error));
+        return;
+      }
+
+      res.status(200).json(successResponse({ state: result.data, generation: generations }));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 /**
  * R4: POST /boards/:boardId/final - Get final stabilized state (real-time)
