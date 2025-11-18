@@ -4,7 +4,6 @@ import type {
   BoardInput,
   Board,
   Result,
-  Coordinates,
   BoardState,
 } from '@game-of-life/shared';
 import { createBoardId, createCoordinates } from '@game-of-life/shared';
@@ -128,8 +127,11 @@ export async function getBoardById(boardId: BoardId): Promise<Result<Board, stri
       success: true,
       data: {
         boardId: createBoardId(board.boardId),
-        state: board.state as [number, number][],
-        dimensions: board.dimensions,
+        state: board.state.map((coord) => [coord[0], coord[1]] as [number, number]),
+        dimensions: {
+          rows: board.dimensions?.rows ?? 0,
+          cols: board.dimensions?.cols ?? 0,
+        },
         created: board.createdAt,
         updated: board.updatedAt,
       },
