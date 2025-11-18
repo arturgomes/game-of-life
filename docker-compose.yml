@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: game-of-life-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: game-of-life
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - game-of-life-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: game-of-life-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - game-of-life-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    container_name: game-of-life-api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017/game-of-life
+      REDIS_URL: redis://redis:6379
+      CACHE_TTL_CURRENT: 3600
+      CACHE_TTL_GENERATION: 86400
+      CACHE_TTL_FINAL: 604800
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - game-of-life-network
+    volumes:
+      - ./packages/api/src:/app/packages/api/src:ro
+      - ./packages/shared/src:/app/packages/shared/src:ro
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  game-of-life-network:
+    driver: bridge
