@@ -50,6 +50,25 @@ export const finalStateRequestSchema = z.object({
   maxAttempts: maxAttemptsSchema,
 });
 
+/**
+ * Param schemas
+ */
+
+// R2: GET /boards/:boardId/next - param validation
+export const boardIdParamSchema = z.object({
+  boardId: boardIdSchema,
+});
+
+export type BoardIdParam = z.infer<typeof boardIdParamSchema>;
+
+// R3: GET /boards/:boardId/state/:generation - param validation
+export const generationParamSchema = z.object({
+  boardId: boardIdSchema,
+  generation: generationSchema,
+});
+
+export type GenerationParam = z.infer<typeof generationParamSchema>;
+
 export type FinalStateRequest = z.infer<typeof finalStateRequestSchema>;
 
 /**

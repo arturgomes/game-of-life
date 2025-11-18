@@ -29,6 +29,8 @@ export {
   maxAttemptsSchema,
   createBoardRequestSchema,
   finalStateRequestSchema,
+  boardIdParamSchema,
+  generationParamSchema,
   createBoardResponseSchema,
   errorResponseSchema,
   successResponse,
@@ -38,6 +40,8 @@ export {
 export type {
   CreateBoardRequest,
   FinalStateRequest,
+  BoardIdParam,
+  GenerationParam,
   CreateBoardResponse,
   ErrorResponse,
 } from './validation.js';
