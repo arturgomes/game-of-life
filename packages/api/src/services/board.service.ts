@@ -1,6 +1,6 @@
 import type { Board, BoardId, BoardInput, BoardState, Result } from '@game-of-life/shared';
 import { createBoardId, createCoordinates } from '@game-of-life/shared';
-import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
 import { createModuleLogger } from '../config/logger.js';
 import { getRedisClient } from '../config/redis.js';
 import { BoardModel } from '../models/board.model.js';
@@ -52,7 +52,7 @@ export async function createBoard(boardInput: BoardInput): Promise<Result<BoardI
     const { state, dimensions } = convertToSparse(boardInput);
 
     // Generate UUID for boardId (per C-5 branded types)
-    const boardId = createBoardId(nanoid());
+    const boardId = createBoardId(uuidv4());
 
     // Save to MongoDB
     await BoardModel.create({
