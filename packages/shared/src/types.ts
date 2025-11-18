@@ -25,7 +25,9 @@ export function createCoordinates(row: number, col: number): Coordinates {
 }
 
 export function parseCoordinates(coords: Coordinates): [number, number] {
-  const [row, col] = coords.split(',').map(Number);
+  const parts = coords.split(',');
+  const row = Number(parts[0]);
+  const col = Number(parts[1]);
   return [row, col];
 }
 
