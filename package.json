@@ -5,9 +5,7 @@
   "type": "module",
   "private": true,
   "packageManager": "yarn@1.22.22",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
