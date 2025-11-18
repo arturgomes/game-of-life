@@ -10,17 +10,19 @@ import type {
 import { createBoardId, createCoordinates } from '@game-of-life/shared';
 import { BoardModel } from '../models/board.model.js';
 import { getRedisClient } from '../config/redis.js';
+import { createModuleLogger } from '../config/logger.js';
 
 /**
  * Board service - Business logic for board operations
- * Per CLAUDE.md: Single Responsibility (C-4), Pure functions (C-3)
+ * Single Responsibility (C-4), Pure functions (C-3)
  */
 
+const logger = createModuleLogger('board-service');
 const CACHE_TTL_CURRENT = Number(process.env.CACHE_TTL_CURRENT ?? 3600);
 
 /**
  * Convert dense 2D array to sparse coordinate set (O(R*C) → O(L))
- * Per CLAUDE.md: Sparse representation (DS1)
+ * Sparse representation (DS1)
  */
 function convertToSparse(board: BoardInput): {
   state: [number, number][];
@@ -46,7 +48,7 @@ function convertToSparse(board: BoardInput): {
 
 /**
  * R1: Create new board
- * Per CLAUDE.md: Result type for error handling
+ * Result type for error handling
  */
 export async function createBoard(boardInput: BoardInput): Promise<Result<BoardId, string>> {
   try {
@@ -70,12 +72,12 @@ export async function createBoard(boardInput: BoardInput): Promise<Result<BoardI
       await redis.setEx(cacheKey, CACHE_TTL_CURRENT, JSON.stringify({ state, dimensions }));
     }
 
-    console.info(`[BoardService] Created board: ${boardId}`);
+    logger.info({ boardId }, 'Board created successfully');
 
     return { success: true, data: boardId };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create board';
-    console.error('[BoardService] Error creating board:', error);
+    logger.error({ error }, 'Error creating board');
     return { success: false, error: message };
   }
 }
@@ -134,7 +136,7 @@ export async function getBoardById(boardId: BoardId): Promise<Result<Board, stri
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch board';
-    console.error('[BoardService] Error fetching board:', error);
+    logger.error({ error }, 'Error fetching board');
     return { success: false, error: message };
   }
 }

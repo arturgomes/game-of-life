@@ -5,7 +5,6 @@ import { createBoard } from '../services/board.service.js';
 
 /**
  * Board routes
- * Per CLAUDE.md: REST endpoints (R1, R2, R3, R4)
  */
 
 export const boardsRouter = express.Router();

@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 /**
  * Validation schemas using Zod
- * Per CLAUDE.md: Input validation on all endpoints
  */
 
 // Cell value: 0 (dead) or 1 (alive)
