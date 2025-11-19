@@ -9,6 +9,7 @@ import {
   createBoard as apiCreateBoard,
   getNextGeneration as apiGetNextGeneration,
   getStateAtGeneration as apiGetStateAtGeneration,
+  startFinalStateCalculation as apiStartFinalStateCalculation,
 } from '../lib';
 import type { MutableBoardInput } from '../types';
 
@@ -52,9 +53,9 @@ export function useApiClient() {
       const result = await apiGetNextGeneration(boardId);
 
       if (result.success) {
-        setCurrentBoard(result.data.board);
+        setCurrentBoard(result.data.state);
         setIsLoading(false);
-        return result.data.board;
+        return result.data.state;
       }
 
       setError(result.error);
@@ -75,9 +76,9 @@ export function useApiClient() {
       const result = await apiGetStateAtGeneration(boardId, generation);
 
       if (result.success) {
-        setCurrentBoard(result.data.board);
+        setCurrentBoard(result.data.state);
         setIsLoading(false);
-        return result.data.board;
+        return result.data.state;
       }
 
       setError(result.error);
@@ -87,9 +88,28 @@ export function useApiClient() {
     [setCurrentBoard, setIsLoading, setError],
   );
 
+  const getStartFinalStateCalculation = useCallback(
+    async (boardId: string, maxAttempts: number) => {
+      setIsLoading(true);
+      setError(null);
+
+      const result = await apiStartFinalStateCalculation(boardId, maxAttempts);
+
+      if (result.success) {
+        setIsLoading(false);
+        return result.data;
+      }
+
+      setError(result.error);
+      setIsLoading(false);
+      return null;
+    },
+    [setIsLoading, setError],
+  );
   return {
     createBoard,
     getNextGeneration,
     getStateAtGeneration,
+    getStartFinalStateCalculation,
   };
 }

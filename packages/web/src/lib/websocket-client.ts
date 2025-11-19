@@ -4,6 +4,7 @@
  */
 
 import type { WebSocketMessage } from '../types';
+import { logger } from './logger';
 
 export type WebSocketCallbacks = {
   onMessage: (message: WebSocketMessage) => void;
@@ -34,7 +35,7 @@ export class GameOfLifeWebSocket {
       this.ws = new WebSocket(this.url);
 
       this.ws.onopen = () => {
-        console.log('[WebSocket] Connected to', this.url);
+        logger.info('WebSocket', 'Connected', { url: this.url });
         this.reconnectAttempts = 0;
         this.callbacks.onOpen?.();
       };
@@ -44,18 +45,18 @@ export class GameOfLifeWebSocket {
           const message: WebSocketMessage = JSON.parse(event.data);
           this.callbacks.onMessage(message);
         } catch (error) {
-          console.error('[WebSocket] Failed to parse message:', error);
+          logger.error('WebSocket', 'Failed to parse message', error);
           this.callbacks.onError('Failed to parse server message');
         }
       };
 
       this.ws.onerror = (event) => {
-        console.error('[WebSocket] Connection error:', event);
+        logger.error('WebSocket', 'Connection error', event);
         this.callbacks.onError('WebSocket connection error');
       };
 
       this.ws.onclose = (event) => {
-        console.log('[WebSocket] Connection closed:', event.code, event.reason);
+        logger.info('WebSocket', 'Connection closed', { code: event.code, reason: event.reason });
 
         // Normal closure (1000) or calculation complete - don't reconnect
         if (event.code === 1000) {
@@ -64,24 +65,27 @@ export class GameOfLifeWebSocket {
         }
 
         // Abnormal closure - attempt reconnection
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          const delay = this.reconnectDelay * 2 ** this.reconnectAttempts;
-          console.log(
-            `[WebSocket] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`,
-          );
-
-          setTimeout(() => {
-            this.reconnectAttempts++;
-            this.connect();
-          }, delay);
-        } else {
-          console.error('[WebSocket] Max reconnection attempts reached');
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+          logger.error('WebSocket', 'Max reconnection attempts reached');
           this.callbacks.onError('Connection lost. Max reconnection attempts reached.');
           this.callbacks.onClose();
+          return;
         }
+
+        const delay = this.reconnectDelay * 2 ** this.reconnectAttempts;
+        logger.info('WebSocket', 'Reconnecting', {
+          delay,
+          attempt: this.reconnectAttempts + 1,
+          maxAttempts: this.maxReconnectAttempts,
+        });
+
+        setTimeout(() => {
+          this.reconnectAttempts++;
+          this.connect();
+        }, delay);
       };
     } catch (error) {
-      console.error('[WebSocket] Failed to create connection:', error);
+      logger.error('WebSocket', 'Failed to create connection', error);
       this.callbacks.onError(
         error instanceof Error ? error.message : 'Failed to establish connection',
       );
@@ -92,11 +96,13 @@ export class GameOfLifeWebSocket {
    * Close WebSocket connection
    */
   disconnect(): void {
-    if (this.ws) {
-      console.log('[WebSocket] Disconnecting...');
-      this.ws.close(1000, 'Client disconnect');
-      this.ws = null;
+    if (!this.ws) {
+      return;
     }
+
+    logger.info('WebSocket', 'Disconnecting');
+    this.ws.close(1000, 'Client disconnect');
+    this.ws = null;
   }
 
   /**

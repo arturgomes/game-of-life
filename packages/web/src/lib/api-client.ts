@@ -45,7 +45,7 @@ export async function createBoard(board: BoardInput): Promise<Result<CreateBoard
  * @param boardId - UUID of the board
  * @returns Next board state
  */
-export async function getNextGeneration(boardId: string): Promise<Result<{ board: BoardInput }>> {
+export async function getNextGeneration(boardId: string): Promise<Result<{ state: BoardInput }>> {
   try {
     const response = await fetch(`${API_BASE_URL}/boards/${boardId}/next`);
 
@@ -54,8 +54,9 @@ export async function getNextGeneration(boardId: string): Promise<Result<{ board
       return { success: false, error: error.error || 'Failed to get next generation' };
     }
 
-    const data = await response.json();
-    return { success: true, data };
+    const body = await response.json();
+    // API returns { data: { state: [...] } }
+    return { success: true, data: body.data };
   } catch (error) {
     return {
       success: false,
@@ -73,7 +74,7 @@ export async function getNextGeneration(boardId: string): Promise<Result<{ board
 export async function getStateAtGeneration(
   boardId: string,
   generation: number,
-): Promise<Result<{ board: BoardInput }>> {
+): Promise<Result<{ state: BoardInput; generation: number }>> {
   try {
     const response = await fetch(`${API_BASE_URL}/boards/${boardId}/state/${generation}`);
 
@@ -82,8 +83,9 @@ export async function getStateAtGeneration(
       return { success: false, error: error.error || 'Failed to get board state' };
     }
 
-    const data = await response.json();
-    return { success: true, data };
+    const body = await response.json();
+    // API returns { data: { state: [...], generation: X } }
+    return { success: true, data: body.data };
   } catch (error) {
     return {
       success: false,
@@ -102,7 +104,7 @@ export async function getStateAtGeneration(
 export async function startFinalStateCalculation(
   boardId: string,
   maxAttempts: number,
-): Promise<Result<{ accepted: boolean }>> {
+): Promise<Result<{ webSocketUrl: string }>> {
   try {
     const response = await fetch(`${API_BASE_URL}/boards/${boardId}/final`, {
       method: 'POST',
@@ -111,12 +113,14 @@ export async function startFinalStateCalculation(
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      return { success: false, error: error.error || 'Failed to start calculation' };
+      const body = await response.json();
+      return { success: false, error: body.error || 'Failed to start calculation' };
     }
 
-    // R4 returns 202 Accepted, client connects via WebSocket
-    return { success: true, data: { accepted: response.status === 202 } };
+    const body = await response.json();
+
+    // R4 returns 202 Accepted with { data: { message: "...", websocketUrl: "ws://..." } }
+    return { success: true, data: { webSocketUrl: body.data.websocketUrl } };
   } catch (error) {
     return {
       success: false,
