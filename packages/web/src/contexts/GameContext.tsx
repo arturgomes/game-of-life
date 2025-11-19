@@ -13,6 +13,7 @@ type GameState = {
   mode: AppMode;
   isLoading: boolean;
   error: string | null;
+  webSocketUrl: string | null;
 };
 
 type GameContextValue = GameState & {
@@ -22,9 +23,10 @@ type GameContextValue = GameState & {
   setMode: (mode: AppMode) => void;
   setIsLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  createEmptyBoard: () => void;
+  createEmptyBoard: (customDimensions?: Dimensions) => void;
   toggleCell: (row: number, col: number) => void;
   loadPattern: (pattern: number[][]) => void;
+  setWebSocketUrl: (url: string | null) => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -51,13 +53,21 @@ export function GameProvider({ children }: GameProviderProps) {
   const [mode, setMode] = useState<AppMode>('editor');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [webSocketUrl, setWebSocketUrl] = useState<string | null>(null);
 
-  const createEmptyBoard = useCallback(() => {
-    const newBoard = Array(dimensions.rows)
-      .fill(0)
-      .map(() => Array(dimensions.cols).fill(0));
-    setCurrentBoard(newBoard);
-  }, [dimensions]);
+  const createEmptyBoard = useCallback(
+    (customDimensions?: Dimensions) => {
+      const dims = customDimensions || dimensions;
+      const newBoard = Array(dims.rows)
+        .fill(0)
+        .map(() => Array(dims.cols).fill(0));
+      setCurrentBoard(newBoard);
+      if (customDimensions) {
+        setDimensions(customDimensions);
+      }
+    },
+    [dimensions],
+  );
 
   const toggleCell = useCallback((row: number, col: number) => {
     setCurrentBoard((prev) => {
@@ -83,6 +93,8 @@ export function GameProvider({ children }: GameProviderProps) {
     currentBoard,
     dimensions,
     mode,
+    webSocketUrl,
+    setWebSocketUrl,
     isLoading,
     error,
     setBoardId,
