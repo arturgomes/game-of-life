@@ -37,7 +37,7 @@ export function getBoardDimensions(board: BoardInput): Dimensions {
 }
 
 /**
- * Validate board structure - extracted guard clauses 
+ * Validate board structure - extracted guard clauses
  */
 export function validateBoard(board: BoardInput): { valid: boolean; error?: string } {
   if (!board || board.length === 0) {
@@ -107,7 +107,7 @@ export function cloneBoard(board: BoardInput): BoardInput {
 }
 
 /**
- * Check if two boards are equal - extracted row comparison 
+ * Check if two boards are equal - extracted row comparison
  */
 export function boardsEqual(board1: BoardInput, board2: BoardInput): boolean {
   if (board1.length !== board2.length) return false;
