@@ -107,7 +107,7 @@ export async function handleFinalStateConnection(ws: WebSocket, url: string): Pr
 
   // Progress callback to stream generation updates with throttling
   // Send update every 10th generation or for first 10 generations to avoid flooding
-  const progressGeneration = 1 // can be 10
+  const progressGeneration = 1; // can be 10
   // Configurable delay via WS_MESSAGE_DELAY_MS environment variable (default 200ms)
   const messageDelay = Number(process.env.WS_MESSAGE_DELAY_MS) || 200;
   const onProgress = async (generation: number, stateArray: BoardInput): Promise<void> => {
@@ -121,7 +121,7 @@ export async function handleFinalStateConnection(ws: WebSocket, url: string): Pr
       });
 
       // Delay to allow WebSocket to flush messages and prevent flooding
-      await new Promise(resolve => setTimeout(resolve, messageDelay));
+      await new Promise((resolve) => setTimeout(resolve, messageDelay));
     }
   };
 
