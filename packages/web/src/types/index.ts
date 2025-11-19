@@ -33,7 +33,7 @@ export type FinalMessage = {
   type: 'final';
   generation: number;
   status: 'stable' | 'oscillating' | 'timeout';
-  period?: number | undefined; 
+  period?: number | undefined;
   state: number[][];
 };
 
@@ -48,7 +48,7 @@ export type ErrorMessage = {
 export type FinalStateResult = {
   status: 'stable' | 'oscillating' | 'timeout';
   generation: number;
-  period?: number | undefined; 
+  period?: number | undefined;
   state: number[][];
 };
 
