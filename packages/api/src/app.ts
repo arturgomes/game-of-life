@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express, { type Express } from 'express';
 import { httpLogger } from './config/logger.js';
 import { errorHandler } from './middleware/error-handler.js';
@@ -9,6 +10,16 @@ import { boardsRouter } from './routes/boards.routes.js';
 
 export function createApp(): Express {
   const app = express();
+
+  // CORS configuration
+  app.use(
+    cors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: false,
+    })
+  );
 
   // HTTP request logging middleware
   app.use(httpLogger);
