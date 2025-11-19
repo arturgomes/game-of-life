@@ -1,13 +1,22 @@
 import { createBoardId, errorResponse, successResponse } from '@game-of-life/shared';
 import type { NextFunction, Request, Response } from 'express';
-import { createBoard, getBoardById, getNextGeneration, getStateAtGeneration } from '../services/board.service.js';
+import {
+  createBoard,
+  getBoardById,
+  getNextGeneration,
+  getStateAtGeneration,
+} from '../services/board.service.js';
 
 /**
  * R1: POST /boards - Upload new board state
  * Input: 2D Array/Matrix
  * Output: { boardId: UUID }
  */
-export async function createBoardController(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function createBoardController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { board } = req.body;
 
@@ -28,7 +37,11 @@ export async function createBoardController(req: Request, res: Response, next: N
  * R2: GET /boards/:boardId/next - Get single next generation
  * Output: Next board state (2D Array)
  */
-export async function getNextGenerationController(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getNextGenerationController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { boardId } = req.params;
 
@@ -89,7 +102,11 @@ export async function getStateAtGenerationController(
  * R4: POST /boards/:boardId/final - Get final stabilized state (real-time)
  * Returns 202 Accepted with WebSocket URL for streaming updates
  */
-export async function getFinalStateController(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getFinalStateController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const { boardId } = req.params;
     const { maxAttempts } = req.body;
