@@ -59,8 +59,15 @@ export type Board = {
 /**
  * Input format for board upload (R1)
  * 2D array where 1 = live cell, 0 = dead cell
+ * Readonly for backend immutability
  */
 export type BoardInput = ReadonlyArray<ReadonlyArray<0 | 1>>;
+
+/**
+ * Mutable version of BoardInput for frontend operations
+ * Used in React state management where mutability is required
+ */
+export type MutableBoardInput = (0 | 1)[][];
 
 /**
  * Final state result for R4
