@@ -5,13 +5,23 @@
 
 import { useState } from 'react';
 import { useGame } from '../contexts/GameContext';
+import { logger } from '../lib';
 import { useApiClient } from './useApiClient';
 
 export function useControls() {
-  const { boardId, currentBoard, dimensions, setDimensions, createEmptyBoard, setError, setMode } =
-    useGame();
+  const {
+    boardId,
+    currentBoard,
+    dimensions,
+    setDimensions,
+    createEmptyBoard,
+    setError,
+    setMode,
+    setWebSocketUrl,
+  } = useGame();
 
-  const { createBoard, getNextGeneration, getStateAtGeneration } = useApiClient();
+  const { createBoard, getNextGeneration, getStateAtGeneration, getStartFinalStateCalculation } =
+    useApiClient();
 
   const [rows, setRows] = useState(dimensions.rows);
   const [cols, setCols] = useState(dimensions.cols);
@@ -69,8 +79,17 @@ export function useControls() {
       return;
     }
 
+    logger.debug('useControls', 'Starting final state calculation', { boardId, maxAttempts });
+    const url = await getStartFinalStateCalculation(boardId, maxAttempts);
+
+    if (!url) {
+      logger.error('useControls', 'Failed to get WebSocket URL');
+      return;
+    }
+
+    logger.info('useControls', 'WebSocket URL received', { url: url.webSocketUrl });
     setMode('streaming');
-    setError('Final state calculation not yet implemented (R4 WebSocket)');
+    setWebSocketUrl(url.webSocketUrl);
   };
 
   return {
