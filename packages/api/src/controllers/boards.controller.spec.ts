@@ -19,10 +19,16 @@ vi.mock('../services/board.service.js', () => ({
   createBoard: vi.fn(),
   getNextGeneration: vi.fn(),
   getStateAtGeneration: vi.fn(),
+  getBoardById: vi.fn(),
 }));
 
 // Import mocked services
-import { createBoard, getNextGeneration, getStateAtGeneration } from '../services/board.service.js';
+import {
+  createBoard,
+  getBoardById,
+  getNextGeneration,
+  getStateAtGeneration,
+} from '../services/board.service.js';
 
 describe('boards.controller', () => {
   // Test data
@@ -235,9 +241,16 @@ describe('boards.controller', () => {
 
       vi.mocked(getStateAtGeneration).mockResolvedValue(successResult);
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
-      expect(getStateAtGeneration).toHaveBeenCalledWith(createBoardId(testBoardId), generationNumber);
+      expect(getStateAtGeneration).toHaveBeenCalledWith(
+        createBoardId(testBoardId),
+        generationNumber,
+      );
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: true,
@@ -249,7 +262,11 @@ describe('boards.controller', () => {
     it('should return 400 if boardId is missing', async () => {
       mockRequest.params = { generation: '5' };
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(getStateAtGeneration).not.toHaveBeenCalled();
       expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -262,7 +279,11 @@ describe('boards.controller', () => {
     it('should return 400 if generation is missing', async () => {
       mockRequest.params = { boardId: testBoardId };
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(getStateAtGeneration).not.toHaveBeenCalled();
       expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -285,7 +306,11 @@ describe('boards.controller', () => {
 
       vi.mocked(getStateAtGeneration).mockResolvedValue(errorResult);
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -307,7 +332,11 @@ describe('boards.controller', () => {
 
       vi.mocked(getStateAtGeneration).mockResolvedValue(errorResult);
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -329,7 +358,11 @@ describe('boards.controller', () => {
 
       vi.mocked(getStateAtGeneration).mockResolvedValue(successResult);
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(getStateAtGeneration).toHaveBeenCalledWith(createBoardId(testBoardId), 15);
       expect(mockResponse.status).toHaveBeenCalledWith(200);
@@ -344,7 +377,11 @@ describe('boards.controller', () => {
       const unexpectedError = new Error('Unexpected error');
       vi.mocked(getStateAtGeneration).mockRejectedValue(unexpectedError);
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(mockNext).toHaveBeenCalledWith(unexpectedError);
       expect(mockResponse.status).not.toHaveBeenCalled();
@@ -364,9 +401,16 @@ describe('boards.controller', () => {
 
       vi.mocked(getStateAtGeneration).mockResolvedValue(successResult);
 
-      await getStateAtGenerationController(mockRequest as Request, mockResponse as Response, mockNext);
+      await getStateAtGenerationController(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext,
+      );
 
-      expect(getStateAtGeneration).toHaveBeenCalledWith(createBoardId(testBoardId), largeGeneration);
+      expect(getStateAtGeneration).toHaveBeenCalledWith(
+        createBoardId(testBoardId),
+        largeGeneration,
+      );
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: true,
         data: { state: blockPattern, generation: largeGeneration },
@@ -375,26 +419,98 @@ describe('boards.controller', () => {
   });
 
   describe('getFinalStateController', () => {
-    it('should return 501 Not Implemented', () => {
+    it('should return 202 with WebSocket URL for valid request', async () => {
       mockRequest.params = { boardId: testBoardId };
       mockRequest.body = { maxAttempts: 100 };
+      mockRequest.get = vi.fn().mockReturnValue('localhost:3000');
 
-      getFinalStateController(mockRequest as Request, mockResponse as Response);
+      // Mock getBoardById to return success (sparse representation)
+      vi.mocked(getBoardById).mockResolvedValue({
+        success: true,
+        data: {
+          boardId: createBoardId(testBoardId),
+          state: [
+            [1, 1],
+            [1, 2],
+            [2, 1],
+            [2, 2],
+          ], // Sparse: Block pattern live cells
+          dimensions: { rows: 4, cols: 4 },
+          created: new Date(),
+          updated: new Date(),
+        },
+      });
 
-      expect(mockResponse.status).toHaveBeenCalledWith(501);
+      await getFinalStateController(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(202);
+      expect(mockResponse.json).toHaveBeenCalled();
+
+      const callArg = (mockResponse.json as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
+      expect(callArg).toHaveProperty('success', true);
+      expect(callArg.data).toHaveProperty('message', 'Final state calculation initiated');
+      expect(callArg.data).toHaveProperty('websocketUrl');
+      expect(callArg.data.websocketUrl).toContain(`boardId=${testBoardId}`);
+      expect(callArg.data.websocketUrl).toContain('maxAttempts=100');
+    });
+
+    it('should return 400 for missing boardId', async () => {
+      mockRequest.params = {};
+      mockRequest.body = { maxAttempts: 100 };
+
+      await getFinalStateController(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Not implemented yet',
+        error: 'BoardId is required',
       });
     });
 
-    it('should not call next() for not implemented endpoint', () => {
+    it('should return 400 for missing maxAttempts', async () => {
       mockRequest.params = { boardId: testBoardId };
+      mockRequest.body = {};
 
-      getFinalStateController(mockRequest as Request, mockResponse as Response);
+      await getFinalStateController(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(501);
-      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'maxAttempts must be a positive number',
+      });
+    });
+
+    it('should return 400 for invalid maxAttempts (negative)', async () => {
+      mockRequest.params = { boardId: testBoardId };
+      mockRequest.body = { maxAttempts: -1 };
+
+      await getFinalStateController(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'maxAttempts must be a positive number',
+      });
+    });
+
+    it('should return 404 for non-existent board', async () => {
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
+      mockRequest.params = { boardId: nonExistentId };
+      mockRequest.body = { maxAttempts: 100 };
+
+      // Mock getBoardById to return failure
+      vi.mocked(getBoardById).mockResolvedValue({
+        success: false,
+        error: 'Board not found',
+      });
+
+      await getFinalStateController(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'Board not found',
+      });
     });
   });
 });
