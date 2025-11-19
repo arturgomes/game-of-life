@@ -21,6 +21,8 @@ export {
   resizeBoard,
   validateBoard,
 } from './board-utils';
+// Logger
+export { logger } from './logger';
 // Patterns
 export {
   ALL_PATTERNS,
