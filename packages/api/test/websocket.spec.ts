@@ -5,11 +5,11 @@ import WebSocket from 'ws';
 import { createApp } from '../src/app.js';
 import { connectDatabase, disconnectDatabase } from '../src/config/database.js';
 import { BoardModel } from '../src/models/board.model.js';
-import { createBoard } from '../src/services/board.service.js';
 import * as boardService from '../src/services/board.service.js';
+import { createBoard } from '../src/services/board.service.js';
 import {
-  initializeWebSocketServer,
   getWebSocketServer,
+  initializeWebSocketServer,
   shutdownWebSocketServer,
 } from '../src/websocket/server.js';
 
