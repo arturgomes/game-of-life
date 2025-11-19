@@ -27,10 +27,15 @@ async function startServer() {
   // Create and start Express app
   const app = createApp();
 
-  app.listen(PORT, () => {
+  const httpServer = app.listen(PORT, () => {
     logger.info({ port: PORT, env: process.env.NODE_ENV ?? 'development' }, 'API server started');
     logger.info(`Health check available at http://localhost:${PORT}/health`);
+    logger.info(`WebSocket server available at ws://localhost:${PORT}/ws`);
   });
+
+  // Initialize WebSocket server
+  const { initializeWebSocketServer } = await import('./websocket/server.js');
+  initializeWebSocketServer(httpServer);
 }
 
 // Start the server
