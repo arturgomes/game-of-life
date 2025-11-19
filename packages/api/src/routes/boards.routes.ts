@@ -1,4 +1,9 @@
-import { boardIdParamSchema, createBoardRequestSchema, generationParamSchema } from '@game-of-life/shared';
+import {
+  boardIdParamSchema,
+  createBoardRequestSchema,
+  finalStateRequestSchema,
+  generationParamSchema,
+} from '@game-of-life/shared';
 import express from 'express';
 import {
   createBoardController,
@@ -17,19 +22,38 @@ export const boardsRouter = express.Router();
 /**
  * R1: POST /boards - Upload new board state
  */
-boardsRouter.post('/', express.json(), validate(createBoardRequestSchema, 'body'), createBoardController);
+boardsRouter.post(
+  '/',
+  express.json(),
+  validate(createBoardRequestSchema, 'body'),
+  createBoardController,
+);
 
 /**
  * R2: GET /boards/:boardId/next - Get single next generation
  */
-boardsRouter.get('/:boardId/next', validate(boardIdParamSchema, 'params'), getNextGenerationController);
+boardsRouter.get(
+  '/:boardId/next',
+  validate(boardIdParamSchema, 'params'),
+  getNextGenerationController,
+);
 
 /**
  * R3: GET /boards/:boardId/state/:generation - Get state X generations ahead
  */
-boardsRouter.get('/:boardId/state/:generation', validate(generationParamSchema, 'params'), getStateAtGenerationController);
+boardsRouter.get(
+  '/:boardId/state/:generation',
+  validate(generationParamSchema, 'params'),
+  getStateAtGenerationController,
+);
 
 /**
  * R4: POST /boards/:boardId/final - Get final stabilized state (real-time)
  */
-boardsRouter.post('/:boardId/final', getFinalStateController);
+boardsRouter.post(
+  '/:boardId/final',
+  express.json(),
+  validate(boardIdParamSchema, 'params'),
+  validate(finalStateRequestSchema, 'body'),
+  getFinalStateController,
+);

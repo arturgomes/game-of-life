@@ -268,7 +268,10 @@ describe('Board Routes Integration Tests', () => {
     });
 
     it('should return 400 for invalid board (not 2D array)', async () => {
-      const response = await request(app).post('/boards').send({ board: [1, 2, 3] }).expect(400);
+      const response = await request(app)
+        .post('/boards')
+        .send({ board: [1, 2, 3] })
+        .expect(400);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body.error).toContain('Validation error');
@@ -340,7 +343,9 @@ describe('Board Routes Integration Tests', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body.data).toHaveProperty('message', 'Final state calculation initiated');
       expect(response.body.data).toHaveProperty('websocketUrl');
-      expect(response.body.data.websocketUrl).toContain(`/ws?boardId=${testBoardId}&maxAttempts=100`);
+      expect(response.body.data.websocketUrl).toContain(
+        `/ws?boardId=${testBoardId}&maxAttempts=100`,
+      );
     });
 
     it('should return 400 for missing maxAttempts', async () => {
@@ -353,13 +358,10 @@ describe('Board Routes Integration Tests', () => {
       testBoardId = createResponse.body.data.boardId;
 
       // Request final state without maxAttempts
-      const response = await request(app)
-        .post(`/boards/${testBoardId}/final`)
-        .send({})
-        .expect(400);
+      const response = await request(app).post(`/boards/${testBoardId}/final`).send({}).expect(400);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'maxAttempts must be a positive number');
+      expect(response.body).toHaveProperty('error', 'Validation error');
     });
 
     it('should return 400 for invalid maxAttempts (negative)', async () => {
@@ -378,7 +380,7 @@ describe('Board Routes Integration Tests', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'maxAttempts must be a positive number');
+      expect(response.body).toHaveProperty('error', 'Validation error');
     });
 
     it('should return 400 for invalid maxAttempts (zero)', async () => {
@@ -397,7 +399,7 @@ describe('Board Routes Integration Tests', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'maxAttempts must be a positive number');
+      expect(response.body).toHaveProperty('error', 'Validation error');
     });
 
     it('should return 404 for non-existent boardId', async () => {
