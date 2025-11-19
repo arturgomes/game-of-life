@@ -8,7 +8,9 @@ import type { CreateBoardResponse, MutableBoardInput, Result } from '../types';
 type BoardInput = MutableBoardInput;
 
 // Environment variables with fallbacks
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+// In Docker production, use relative paths for Nginx proxy
+// In development, use direct API URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * R1: POST /boards - Create new board
@@ -130,6 +132,9 @@ export async function startFinalStateCalculation(
  * @returns WebSocket URL with query parameters
  */
 export function buildWebSocketUrl(boardId: string, maxAttempts: number): string {
-  const WsBaseUrl = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:3000';
-  return `${WsBaseUrl}/ws/final?boardId=${boardId}&maxAttempts=${maxAttempts}`;
+  // In Docker production, use relative path for Nginx proxy
+  // Determine protocol based on current page protocol
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}`;
+  return `${wsBaseUrl}/ws/final?boardId=${boardId}&maxAttempts=${maxAttempts}`;
 }
