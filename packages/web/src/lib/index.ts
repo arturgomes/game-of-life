@@ -26,7 +26,6 @@ export {
   ALL_PATTERNS,
   getAllPatternNames,
   getPatternByName,
-  METHUSELAHS,
   OSCILLATORS,
   SPACESHIPS,
   STILL_LIFES,
