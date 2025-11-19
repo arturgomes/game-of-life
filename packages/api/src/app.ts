@@ -18,7 +18,7 @@ export function createApp(): Express {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: false,
-    })
+    }),
   );
 
   // HTTP request logging middleware
