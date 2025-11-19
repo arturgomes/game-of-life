@@ -52,10 +52,10 @@ const MAX_ATTEMPTS_SMALL = 10;
 
 describe('detectCycle', () => {
   describe('stable patterns', () => {
-    it('should detect empty board as stable at generation 0', () => {
+    it('should detect empty board as stable at generation 0', async () => {
       const board = GameBoard.fromDenseArray(EMPTY_BOARD);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -66,10 +66,10 @@ describe('detectCycle', () => {
       expect(result.data.state).toEqual(EMPTY_BOARD);
     });
 
-    it('should detect block pattern as stable at generation 0', () => {
+    it('should detect block pattern as stable at generation 0', async () => {
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -80,7 +80,7 @@ describe('detectCycle', () => {
       expect(result.data.state).toEqual(BLOCK_PATTERN);
     });
 
-    it('should detect when pattern becomes stable after iterations', () => {
+    it('should detect when pattern becomes stable after iterations', async () => {
       // Pattern that dies after one generation (single cell)
       const singleCell: BoardInput = [
         [0, 0, 0],
@@ -89,7 +89,7 @@ describe('detectCycle', () => {
       ];
       const board = GameBoard.fromDenseArray(singleCell);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -105,10 +105,10 @@ describe('detectCycle', () => {
   });
 
   describe('oscillating patterns', () => {
-    it('should detect blinker as oscillating with period 2', () => {
+    it('should detect blinker as oscillating with period 2', async () => {
       const board = GameBoard.fromDenseArray(BLINKER_PATTERN);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -119,10 +119,10 @@ describe('detectCycle', () => {
       expect(result.data.state).toBeDefined();
     });
 
-    it('should detect toad as oscillating with period 2', () => {
+    it('should detect toad as oscillating with period 2', async () => {
       const board = GameBoard.fromDenseArray(TOAD_PATTERN);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -134,10 +134,10 @@ describe('detectCycle', () => {
   });
 
   describe('timeout handling', () => {
-    it('should timeout for glider pattern that never stabilizes', () => {
+    it('should timeout for glider pattern that never stabilizes', async () => {
       const board = GameBoard.fromDenseArray(GLIDER_PATTERN);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_SMALL);
+      const result = await detectCycle(board, MAX_ATTEMPTS_SMALL);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -148,11 +148,11 @@ describe('detectCycle', () => {
       expect(result.data.state).toBeDefined();
     });
 
-    it('should timeout after exact maxAttempts generations', () => {
+    it('should timeout after exact maxAttempts generations', async () => {
       const maxAttempts = 5;
       const board = GameBoard.fromDenseArray(GLIDER_PATTERN);
 
-      const result = detectCycle(board, maxAttempts);
+      const result = await detectCycle(board, maxAttempts);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -163,12 +163,12 @@ describe('detectCycle', () => {
   });
 
   describe('progress callback', () => {
-    it('should invoke progress callback for each generation', () => {
+    it('should invoke progress callback for each generation', async () => {
       const progressCallback = vi.fn();
       const board = GameBoard.fromDenseArray(BLINKER_PATTERN);
       const maxAttempts = 5;
 
-      detectCycle(board, maxAttempts, progressCallback);
+      await detectCycle(board, maxAttempts, progressCallback);
 
       // Should be called at least once (when oscillation detected)
       expect(progressCallback).toHaveBeenCalled();
@@ -182,30 +182,30 @@ describe('detectCycle', () => {
       });
     });
 
-    it('should not invoke callback if not provided', () => {
+    it('should not invoke callback if not provided', async () => {
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
       // Should not throw when callback is undefined
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
     });
 
-    it('should provide current state in progress callback', () => {
+    it('should provide current state in progress callback', async () => {
       const progressCallback = vi.fn();
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
-      detectCycle(board, MAX_ATTEMPTS_DEFAULT, progressCallback);
+      await detectCycle(board, MAX_ATTEMPTS_DEFAULT, progressCallback);
 
       // For stable pattern, should be called once with generation 0
       expect(progressCallback).toHaveBeenCalledWith(0, BLOCK_PATTERN);
     });
 
-    it('should call progress callback multiple times for oscillating pattern', () => {
+    it('should call progress callback multiple times for oscillating pattern', async () => {
       const progressCallback = vi.fn();
       const board = GameBoard.fromDenseArray(BLINKER_PATTERN);
 
-      detectCycle(board, MAX_ATTEMPTS_DEFAULT, progressCallback);
+      await detectCycle(board, MAX_ATTEMPTS_DEFAULT, progressCallback);
 
       // Should be called multiple times (at least for detection)
       expect(progressCallback.mock.calls.length).toBeGreaterThanOrEqual(2);
@@ -213,10 +213,10 @@ describe('detectCycle', () => {
   });
 
   describe('error handling', () => {
-    it('should return error for invalid maxAttempts (0)', () => {
+    it('should return error for invalid maxAttempts (0)', async () => {
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
-      const result = detectCycle(board, 0);
+      const result = await detectCycle(board, 0);
 
       expect(result.success).toBe(false);
       if (result.success) return;
@@ -224,10 +224,10 @@ describe('detectCycle', () => {
       expect(result.error).toContain('maxAttempts must be positive');
     });
 
-    it('should return error for negative maxAttempts', () => {
+    it('should return error for negative maxAttempts', async () => {
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
-      const result = detectCycle(board, -5);
+      const result = await detectCycle(board, -5);
 
       expect(result.success).toBe(false);
       if (result.success) return;
@@ -237,13 +237,13 @@ describe('detectCycle', () => {
   });
 
   describe('cycle detection algorithm', () => {
-    it('should use hash-based state comparison for efficiency', () => {
+    it('should use hash-based state comparison for efficiency', async () => {
       // This test verifies the algorithm completes in reasonable time
       // O(L) complexity should handle large sparse boards efficiently
       const largeBoard = GameBoard.fromDenseArray(GLIDER_PATTERN);
       const startTime = Date.now();
 
-      detectCycle(largeBoard, 50);
+      await detectCycle(largeBoard, 50);
 
       const duration = Date.now() - startTime;
 
@@ -251,10 +251,10 @@ describe('detectCycle', () => {
       expect(duration).toBeLessThan(100);
     });
 
-    it('should detect oscillation period correctly for various periods', () => {
+    it('should detect oscillation period correctly for various periods', async () => {
       // Blinker has period 2
       const blinker = GameBoard.fromDenseArray(BLINKER_PATTERN);
-      const result = detectCycle(blinker, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(blinker, MAX_ATTEMPTS_DEFAULT);
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -262,11 +262,11 @@ describe('detectCycle', () => {
       expect(result.data.period).toBe(2);
     });
 
-    it('should maintain state integrity across generations', () => {
+    it('should maintain state integrity across generations', async () => {
       const progressCallback = vi.fn();
       const board = GameBoard.fromDenseArray(BLINKER_PATTERN);
 
-      detectCycle(board, MAX_ATTEMPTS_DEFAULT, progressCallback);
+      await detectCycle(board, MAX_ATTEMPTS_DEFAULT, progressCallback);
 
       // Verify all states have consistent dimensions
       progressCallback.mock.calls.forEach((call) => {
@@ -278,10 +278,10 @@ describe('detectCycle', () => {
   });
 
   describe('result structure', () => {
-    it('should return properly typed success result', () => {
+    it('should return properly typed success result', async () => {
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
-      const result = detectCycle(board, MAX_ATTEMPTS_DEFAULT);
+      const result = await detectCycle(board, MAX_ATTEMPTS_DEFAULT);
 
       expect(result).toHaveProperty('success');
       expect(result.success).toBe(true);
@@ -293,10 +293,10 @@ describe('detectCycle', () => {
       expect(result.data).toHaveProperty('state');
     });
 
-    it('should return properly typed error result', () => {
+    it('should return properly typed error result', async () => {
       const board = GameBoard.fromDenseArray(BLOCK_PATTERN);
 
-      const result = detectCycle(board, -1);
+      const result = await detectCycle(board, -1);
 
       expect(result).toHaveProperty('success');
       expect(result.success).toBe(false);
