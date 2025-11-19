@@ -77,6 +77,8 @@ export function useControls() {
       return;
     }
 
+    setError(null);
+
     logger.debug('useControls', 'Starting final state calculation', { boardId, maxAttempts });
     const url = await getStartFinalStateCalculation(boardId, maxAttempts);
 
@@ -86,8 +88,11 @@ export function useControls() {
     }
 
     logger.info('useControls', 'WebSocket URL received', { url: url.webSocketUrl });
-    setMode('streaming');
+
     setWebSocketUrl(url.webSocketUrl);
+    setTimeout(() => {
+      setMode('streaming');
+    }, 0);
   };
 
   return {
