@@ -1,4 +1,11 @@
-import { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  startTransition,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import type { AppMode, Dimensions } from '../types';
 
 /**
@@ -83,10 +90,27 @@ export function GameProvider({ children }: GameProviderProps) {
     });
   }, []);
 
-  const loadPattern = useCallback((pattern: number[][]) => {
-    setCurrentBoard(pattern);
-    setDimensions({ rows: pattern.length, cols: pattern[0]?.length ?? 0 });
-  }, []);
+  const loadPattern = useCallback(
+    (pattern: number[][]) => {
+      if (pattern.length === 0) {
+        createEmptyBoard({ rows: 10, cols: 10 });
+        return;
+      }
+
+      const cols = pattern[0]?.length ?? 0;
+      if (cols === 0) {
+        console.error('Invalid pattern: rows exist but no columns');
+        return;
+      }
+
+      startTransition(() => {
+        const newDimensions = { rows: pattern.length, cols };
+        setDimensions(newDimensions);
+        setCurrentBoard(pattern);
+      });
+    },
+    [createEmptyBoard],
+  );
 
   const value: GameContextValue = {
     boardId,

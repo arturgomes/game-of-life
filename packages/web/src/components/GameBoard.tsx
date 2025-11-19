@@ -24,10 +24,10 @@ function GameBoardComponent({ editable = true }: GameBoardProps) {
   console.log(currentBoard);
   if (!currentBoard) {
     return (
-      <div className="flex items-center justify-center p-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+      <div className="flex justify-center items-center p-12 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed">
         <div className="text-center">
-          <p className="text-gray-500 text-lg mb-2">No board loaded</p>
-          <p className="text-gray-400 text-sm">Create a new board or load a pattern to begin</p>
+          <p className="mb-2 text-lg text-gray-500">No board loaded</p>
+          <p className="text-sm text-gray-400">Create a new board or load a pattern to begin</p>
         </div>
       </div>
     );
@@ -37,7 +37,7 @@ function GameBoardComponent({ editable = true }: GameBoardProps) {
   const maxCols = Math.min(dimensions.cols, 50); // Limit for responsive design
 
   return (
-    <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="flex justify-center items-center p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
       <div
         className="grid gap-px border-2 border-gray-500 min-w-80 min-h-80"
         style={{
@@ -49,7 +49,7 @@ function GameBoardComponent({ editable = true }: GameBoardProps) {
         {currentBoard.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
             <button
-              key={`${rowIndex}-${rowIndex * colIndex}`}
+              key={`${rowIndex}-${colIndex * rowIndex}`}
               type="button"
               onClick={() => isEditable && toggleCell(rowIndex, colIndex)}
               disabled={!isEditable}
