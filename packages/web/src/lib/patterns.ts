@@ -1,7 +1,7 @@
 /**
  * Predefined Game of Life patterns
  * Includes stable patterns, oscillators, and spaceships
- * 
+ *
  * Patterns found in https://blog.xojo.com/2022/05/11/conways-game-of-life/
  */
 
@@ -193,7 +193,6 @@ export const SPACESHIPS: Record<string, Pattern> = {
     ],
   },
 };
-
 
 /**
  * All patterns grouped by category
