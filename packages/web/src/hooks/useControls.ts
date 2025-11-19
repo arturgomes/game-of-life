@@ -13,7 +13,6 @@ export function useControls() {
     boardId,
     currentBoard,
     dimensions,
-    setDimensions,
     createEmptyBoard,
     setError,
     setMode,
@@ -29,8 +28,7 @@ export function useControls() {
   const [maxAttempts, setMaxAttempts] = useState(1000);
 
   const handleDimensionsChange = () => {
-    setDimensions({ rows, cols });
-    createEmptyBoard();
+    createEmptyBoard({ rows, cols });
   };
 
   const handleCreateBoard = async () => {

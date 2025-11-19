@@ -1,5 +1,8 @@
+import { Controls } from './components/Controls';
+import { GameBoard } from './components/GameBoard';
 import { Layout } from './components/Layout';
-import { Card } from './components/ui';
+import { PatternLibrary } from './components/PatternLibrary';
+import { ProgressStream } from './components/ProgressStream';
 import { GameProvider, useGame } from './contexts/GameContext';
 
 function AppContent() {
@@ -16,39 +19,47 @@ function AppContent() {
 
       <Layout.Main>
         <Layout.Main.Content>
-          <div className="text-center text-gray-500">
-            <h2 className="text-xl font-semibold mb-2">Main block</h2>
-            <p className="mb-4">Description for later</p>
+          {/* Main Grid Layout */}
+          <div className="flex flex-col gap-4">
+            {/* Center - Game Board */}
+            <div className="lg:col-span-9">
+              <div className="space-y-4">
+                {/* Mode Indicator */}
+                <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="text-sm text-gray-600">Mode:</span>
+                  <span className="text-sm font-mono font-semibold text-blue-600">
+                    {mode.toUpperCase()}
+                  </span>
+                </div>
 
-            <Card className="max-w-md mx-auto mt-6">
-              <Card.Header>
-                <Card.Title>Card</Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <ul className="text-left space-y-2 text-sm">
-                  <li>One</li>
-                  <li>Two</li>
-                  <li>Three</li>
-                </ul>
-              </Card.Body>
-              <Card.Footer>
-                <p className="text-xs text-gray-600">
-                  Current Mode: <span className="font-mono text-blue-600">{mode}</span>
-                </p>
-              </Card.Footer>
-            </Card>
+                {/* Progress Stream - Only visible in streaming mode */}
+                <ProgressStream />
 
-            {error && (
-              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg max-w-md mx-auto">
-                <p className="text-red-800 text-sm">{error}</p>
+                {/* Game Board */}
+                <GameBoard />
+
+                {/* Error Display */}
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800 text-sm font-medium">{error}</p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+
+            {/* Controls and Pattern Library */}
+            <div className="flex flex-row align-bottom gap-4">
+              <Controls />
+              <PatternLibrary />
+            </div>
           </div>
         </Layout.Main.Content>
       </Layout.Main>
 
       <Layout.Footer>
-        <Layout.Footer.Text>Conway's Game of Life</Layout.Footer.Text>
+        <Layout.Footer.Text>
+          Built with React + Vite + TypeScript | Phase 3 Complete
+        </Layout.Footer.Text>
       </Layout.Footer>
     </Layout>
   );
