@@ -33,7 +33,7 @@ export function Controls() {
   } = useControls();
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-row align-top gap-2 space-y-4">
       {/* Board Setup Section */}
       <Card>
         <Card.Header>
@@ -69,17 +69,27 @@ export function Controls() {
                 />
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={handleDimensionsChange} variant="secondary" className="flex-1">
+            <Button
+              onClick={handleCreateBoard}
+              size="sm"
+              disabled={!currentBoard}
+              className="w-full"
+            >
+              Upload Board (R1)
+            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={handleDimensionsChange}
+                size="sm"
+                variant="secondary"
+                className="flex-1"
+              >
                 Set Dimensions
               </Button>
-              <Button onClick={createEmptyBoard} variant="secondary" className="flex-1">
+              <Button onClick={createEmptyBoard} size="sm" variant="secondary" className="flex-1">
                 Clear Board
               </Button>
             </div>
-            <Button onClick={handleCreateBoard} disabled={!currentBoard} className="w-full">
-              Upload Board (R1)
-            </Button>
           </div>
         </Card.Body>
       </Card>
@@ -108,8 +118,8 @@ export function Controls() {
                   onChange={(e) => setJumpGeneration(Number(e.target.value))}
                   className="flex-1"
                 />
-                <Button onClick={handleJumpToGeneration} disabled={!boardId}>
-                  Go (R3)
+                <Button onClick={handleJumpToGeneration} size="sm" disabled={!boardId}>
+                  Go
                 </Button>
               </div>
             </div>
@@ -137,8 +147,13 @@ export function Controls() {
                 onChange={(e) => setMaxAttempts(Number(e.target.value))}
               />
             </div>
-            <Button onClick={handleStartFinalState} disabled={!boardId} className="w-full">
-              Calculate Final State (R4)
+            <Button
+              onClick={handleStartFinalState}
+              size="sm"
+              disabled={!boardId}
+              className="w-full"
+            >
+              Calculate Final State
             </Button>
           </div>
         </Card.Body>
