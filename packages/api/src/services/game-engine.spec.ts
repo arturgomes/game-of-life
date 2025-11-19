@@ -3,11 +3,11 @@ import { createCoordinates } from '@game-of-life/shared';
 import { describe, expect, it } from 'vitest';
 import {
   Cell,
-  GameBoard,
-  GameRules,
   calculateNextState,
   countNeighbors,
   denseToSparse,
+  GameBoard,
+  GameRules,
   sparseToDense,
 } from './game-engine';
 
