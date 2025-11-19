@@ -4,44 +4,43 @@
 
 // Types
 export type {
-  BoardId,
-  Coordinates,
-  BoardState,
-  Dimensions,
   Board,
+  BoardId,
   BoardInput,
+  BoardState,
+  Coordinates,
+  Dimensions,
   FinalStateResult,
+  MutableBoardInput,
   Result,
 } from './types.js';
 
 export {
   createBoardId,
-  isBoardId,
   createCoordinates,
+  isBoardId,
   parseCoordinates,
 } from './types.js';
-
-// Validation
-export {
-  boardInputSchema,
-  boardIdSchema,
-  generationSchema,
-  maxAttemptsSchema,
-  createBoardRequestSchema,
-  finalStateRequestSchema,
-  boardIdParamSchema,
-  generationParamSchema,
-  createBoardResponseSchema,
-  errorResponseSchema,
-  successResponse,
-  errorResponse,
-} from './validation.js';
-
 export type {
-  CreateBoardRequest,
-  FinalStateRequest,
   BoardIdParam,
-  GenerationParam,
+  CreateBoardRequest,
   CreateBoardResponse,
   ErrorResponse,
+  FinalStateRequest,
+  GenerationParam,
+} from './validation.js';
+// Validation
+export {
+  boardIdParamSchema,
+  boardIdSchema,
+  boardInputSchema,
+  createBoardRequestSchema,
+  createBoardResponseSchema,
+  errorResponse,
+  errorResponseSchema,
+  finalStateRequestSchema,
+  generationParamSchema,
+  generationSchema,
+  maxAttemptsSchema,
+  successResponse,
 } from './validation.js';
