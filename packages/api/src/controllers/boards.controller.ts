@@ -129,9 +129,10 @@ export async function getFinalStateController(
     }
 
     // Build WebSocket URL with query parameters
-    const protocol = process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
-    const host = req.get('host') ?? 'localhost:3000';
-    const websocketUrl = `${protocol}://${host}/ws?boardId=${boardId}&maxAttempts=${maxAttempts}`;
+    // Use environment variable for explicit control, fallback to request host
+    const wsHost = process.env.WS_HOST || req.get('host') || 'localhost:3000';
+    const wsProtocol = process.env.WS_PROTOCOL || (process.env.NODE_ENV === 'production' ? 'wss' : 'ws');
+    const websocketUrl = `${wsProtocol}://${wsHost}/ws?boardId=${boardId}&maxAttempts=${maxAttempts}`;
 
     // Return 202 Accepted with WebSocket URL
     res.status(202).json(
