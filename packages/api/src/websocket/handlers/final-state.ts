@@ -105,17 +105,28 @@ export async function handleFinalStateConnection(ws: WebSocket, url: string): Pr
   // Create GameBoard instance from stored sparse state
   const gameBoard = GameBoard.fromSparseArray(state, dimensions);
 
-  // Progress callback to stream generation updates
-  const onProgress = (generation: number, stateArray: BoardInput): void => {
-    sendMessage(ws, {
-      type: 'progress',
-      generation,
-      state: stateArray,
-    });
+  // Progress callback to stream generation updates with throttling
+  // Send update every 10th generation or for first 10 generations to avoid flooding
+  const progressGeneration = 1 // can be 10
+  // Configurable delay via WS_MESSAGE_DELAY_MS environment variable (default 200ms)
+  const messageDelay = Number(process.env.WS_MESSAGE_DELAY_MS) || 200;
+  const onProgress = async (generation: number, stateArray: BoardInput): Promise<void> => {
+    const shouldSend = generation < progressGeneration || generation % progressGeneration === 0;
+
+    if (shouldSend) {
+      sendMessage(ws, {
+        type: 'progress',
+        generation,
+        state: stateArray,
+      });
+
+      // Delay to allow WebSocket to flush messages and prevent flooding
+      await new Promise(resolve => setTimeout(resolve, messageDelay));
+    }
   };
 
   // Run cycle detection with streaming
-  const result = detectCycle(gameBoard, maxAttempts, onProgress);
+  const result = await detectCycle(gameBoard, maxAttempts, onProgress);
 
   if (!result.success) {
     sendMessage(ws, {

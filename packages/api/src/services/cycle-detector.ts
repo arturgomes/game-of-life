@@ -25,8 +25,9 @@ export type CycleDetectionResult = Result<FinalState, string>;
 
 /**
  * Progress callback for streaming generation updates
+ * Can be async to support throttling/delays
  */
-export type ProgressCallback = (generation: number, state: BoardInput) => void;
+export type ProgressCallback = (generation: number, state: BoardInput) => void | Promise<void>;
 
 /**
  * Constants for cycle detection
@@ -64,14 +65,14 @@ function isStable(currentHash: string, nextHash: string): boolean {
  *
  * @param initialBoard - Starting board state
  * @param maxAttempts - Maximum generations to simulate
- * @param onProgress - Optional callback invoked each generation
+ * @param onProgress - Optional callback invoked each generation (can be async)
  * @returns Result with final state or error
  */
-export function detectCycle(
+export async function detectCycle(
   initialBoard: GameBoard,
   maxAttempts: number,
   onProgress?: ProgressCallback,
-): CycleDetectionResult {
+): Promise<CycleDetectionResult> {
   // Validation (C-9: early returns)
   if (maxAttempts <= 0) {
     return { success: false, error: 'maxAttempts must be positive (>= 1)' };
@@ -87,7 +88,7 @@ export function detectCycle(
   const initialNextHash = initialNextBoard.toStateHash();
 
   const initialState = currentBoard.toDenseArray();
-  onProgress?.(generation, initialState);
+  await onProgress?.(generation, initialState);
 
   if (isStable(initialHash, initialNextHash)) {
     return {
@@ -104,7 +105,7 @@ export function detectCycle(
   currentBoard = initialNextBoard;
   generation = 1;
 
-  onProgress?.(generation, initialNextBoard.toDenseArray());
+  await onProgress?.(generation, initialNextBoard.toDenseArray());
 
   for (let i = 1; i < maxAttempts; i++) {
     const currentHash = currentBoard.toStateHash();
@@ -114,7 +115,7 @@ export function detectCycle(
     generation = i + 1;
     const nextState = nextBoard.toDenseArray();
 
-    onProgress?.(generation, nextState);
+    await onProgress?.(generation, nextState);
 
     if (isStable(currentHash, nextHash)) {
       return {
