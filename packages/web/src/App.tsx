@@ -48,9 +48,7 @@ function AppContent() {
       </Layout.Main>
 
       <Layout.Footer>
-        <Layout.Footer.Text>
-          Conway's Game of Life
-        </Layout.Footer.Text>
+        <Layout.Footer.Text>Conway's Game of Life</Layout.Footer.Text>
       </Layout.Footer>
     </Layout>
   );
