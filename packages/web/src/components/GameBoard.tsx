@@ -113,9 +113,7 @@ function useDragPaint(
   };
 }
 
-/**
- * Calculate optimal cell size based on grid dimensions
- */
+
 function calculateCellSize(cols: number): number {
   return Math.max(
     CELL_SIZE_CONFIG.min,
@@ -123,9 +121,6 @@ function calculateCellSize(cols: number): number {
   );
 }
 
-/**
- * Generate grid style object
- */
 function getGridStyle(rows: number, cols: number, cellSize: number) {
   return {
     gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
@@ -135,9 +130,7 @@ function getGridStyle(rows: number, cols: number, cellSize: number) {
   };
 }
 
-/**
- * Generate board container style object
- */
+
 function getBoardContainerStyle(rows: number, cols: number, cellSize: number) {
   return {
     width: `${cols * cellSize}px`,
@@ -149,9 +142,7 @@ function getBoardContainerStyle(rows: number, cols: number, cellSize: number) {
   };
 }
 
-/**
- * Generate cell className based on state and editability
- */
+
 function getCellClassName(
   isAlive: boolean,
   isEditable: boolean,
@@ -171,22 +162,10 @@ function getCellClassName(
   return `${baseClasses} ${colorClasses} ${borderClasses} ${interactionClasses}`;
 }
 
-/**
- * Generate grid overlay background style
- */
-function getGridOverlayStyle(cellSize: number) {
-  return {
-    backgroundImage: `
-      linear-gradient(to right, rgba(229, 231, 235, 0.3) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(229, 231, 235, 0.3) 1px, transparent 1px)
-    `,
-    backgroundSize: `${cellSize}px ${cellSize}px`,
-  };
-}
 
-/**
- * Empty state component for when no board is loaded
- */
+
+
+
 function EmptyBoardState({ mode }: { mode: string }) {
   if (mode === 'streaming') {
     return (
@@ -195,7 +174,7 @@ function EmptyBoardState({ mode }: { mode: string }) {
   }
 
   return (
-    <div className="flex justify-center items-center p-12 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed">
+    <div className="flex justify-center items-center p-12 bg-gray-800 rounded-lg border-2 border-gray-300 border-dashed">
       <div className="text-center">
         <p className="mb-2 text-lg font-medium text-gray-600">No board loaded</p>
         <p className="text-sm text-gray-400">Create a new board or load a pattern to begin</p>
@@ -204,9 +183,7 @@ function EmptyBoardState({ mode }: { mode: string }) {
   );
 }
 
-/**
- * Individual cell component
- */
+
 type CellProps = {
   isAlive: boolean;
   isEditable: boolean;
@@ -243,9 +220,7 @@ const Cell = memo(function Cell({
   );
 });
 
-/**
- * Main GameBoard component
- */
+
 function GameBoardComponent({ editable = true }: GameBoardProps) {
   const { currentBoard, dimensions, toggleCell, mode } = useGame();
   const boardRef = useRef<HTMLDivElement>(null);
@@ -265,7 +240,6 @@ function GameBoardComponent({ editable = true }: GameBoardProps) {
   const cellSize = calculateCellSize(dimensions.cols);
   const boardContainerStyle = getBoardContainerStyle(dimensions.rows, dimensions.cols, cellSize);
   const gridStyle = getGridStyle(dimensions.rows, dimensions.cols, cellSize);
-  const gridOverlayStyle = getGridOverlayStyle(cellSize);
 
   return (
     <div className="flex justify-center items-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-lg">
@@ -292,15 +266,9 @@ function GameBoardComponent({ editable = true }: GameBoardProps) {
             )}
           </div>
 
-          {/* Grid overlay for better visual separation */}
-          {/* <div className="absolute inset-0 pointer-events-none" style={gridOverlayStyle} /> */}
-        </div>
+           </div>
 
-        {isEditable && (
-          <div className="mt-2 text-xs text-gray-500 text-center bg-white/80 px-3 py-1.5 rounded-full">
-            💡 Click or drag to draw
-          </div>
-        )}
+
       </div>
     </div>
   );
