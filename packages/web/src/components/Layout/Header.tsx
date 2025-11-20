@@ -7,7 +7,7 @@ type HeaderProps = {
 export function Header({ children }: HeaderProps) {
   return (
     <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">{children}</div>
+      <div className="px-2 py-2 mx-auto max-w-7xl sm:px-4 lg:px-8">{children}</div>
     </header>
   );
 }
@@ -17,7 +17,7 @@ type HeaderTitleProps = {
 };
 
 export function HeaderTitle({ children }: HeaderTitleProps) {
-  return <h1 className="text-3xl font-bold text-gray-900">{children}</h1>;
+  return <h1 className="text-2xl font-bold text-gray-900">{children}</h1>;
 }
 
 type HeaderSubtitleProps = {
@@ -25,7 +25,7 @@ type HeaderSubtitleProps = {
 };
 
 export function HeaderSubtitle({ children }: HeaderSubtitleProps) {
-  return <p className="text-sm text-gray-600 mt-1">{children}</p>;
+  return <p className="mt-1 text-sm text-gray-600">{children}</p>;
 }
 
 // Compound pattern exports
