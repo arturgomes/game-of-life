@@ -8,6 +8,15 @@ import {
 } from 'react';
 import type { AppMode, Dimensions } from '../types';
 
+
+const createInitialBoard = (rows: number, cols: number): number[][] =>
+  Array(rows)
+    .fill(0)
+    .map(() => Array(cols).fill(0));
+
+const INITIAL_ROWS = 20;
+const INITIAL_COLS = 20;
+
 /**
  * Game state context for managing board and application state
  * Uses compound pattern to avoid prop drilling
@@ -52,10 +61,10 @@ type GameProviderProps = {
 
 export function GameProvider({ children }: GameProviderProps) {
   const [boardId, setBoardId] = useState<string | null>(null);
-  const [currentBoard, setCurrentBoard] = useState<number[][] | null>(null);
+  const [currentBoard, setCurrentBoard] = useState<number[][] | null>(createInitialBoard(INITIAL_ROWS, INITIAL_COLS));
   const [dimensions, setDimensions] = useState<Dimensions>({
-    rows: 10,
-    cols: 10,
+    rows: INITIAL_ROWS,
+    cols: INITIAL_COLS,
   });
   const [mode, setMode] = useState<AppMode>('editor');
   const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +102,7 @@ export function GameProvider({ children }: GameProviderProps) {
   const loadPattern = useCallback(
     (pattern: number[][]) => {
       if (pattern.length === 0) {
-        createEmptyBoard({ rows: 10, cols: 10 });
+        createEmptyBoard({ rows: INITIAL_ROWS, cols: INITIAL_COLS });
         return;
       }
 
