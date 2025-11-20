@@ -25,12 +25,14 @@ const CATEGORY_LABELS: Record<CategoryKey, string> = {
   stillLifes: 'Still Lifes',
   oscillators: 'Oscillators',
   spaceships: 'Spaceships',
+  custom: "Custom patterns"
 };
 
 const CATEGORY_DESCRIPTIONS: Record<CategoryKey, string> = {
   stillLifes: 'Stable patterns that never change',
   oscillators: 'Patterns that repeat with a period',
   spaceships: 'Patterns that move across the grid',
+  custom: 'Patterns that were created randomly or extracted from the web',
 };
 
 export function PatternLibrary() {
