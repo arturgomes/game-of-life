@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/useNamingConvention: Difinition of compound pattern */
 import { SheetBody } from './SheetBody';
 import { SheetClose } from './SheetClose';
 import { SheetContent } from './SheetContent';
