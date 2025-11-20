@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -14,6 +14,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
   danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+  outline: 'bg-transparent border text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -33,15 +34,7 @@ export function Button({
   return (
     <button
       type="button"
-      className={`
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        rounded-lg font-medium
-        transition-colors duration-200
-        focus:outline-none focus:ring-2 focus:ring-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed
-        ${className}
-      `}
+      className={`font-medium rounded-lg transition-colors duration-200 ${variantStyles[variant]} ${sizeStyles[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       disabled={disabled}
       {...props}
     >
