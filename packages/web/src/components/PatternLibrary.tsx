@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { ALL_PATTERNS } from '../lib/patterns';
 import type { Pattern } from '../types';
-import { Button, Card } from './ui';
+import { Button } from './ui';
 
 /**
  * PatternLibrary Component - Quick-load common Game of Life patterns

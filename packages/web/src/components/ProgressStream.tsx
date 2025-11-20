@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { useControls, useWebSocket } from '../hooks';
 import type { FinalStateResult } from '../types';
-import { Button, Card } from './ui';
+import { Card } from './ui';
 
 /**
  * ProgressStream Component - Real-time WebSocket streaming for R4

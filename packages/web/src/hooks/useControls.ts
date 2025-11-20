@@ -19,7 +19,7 @@ export function useControls() {
     setWebSocketUrl,
   } = useGame();
 
-  const { createBoard, getNextGeneration, getStateAtGeneration, getStartFinalStateCalculation } =
+  const { createBoard, getStateAtGeneration, getStartFinalStateCalculation } =
     useApiClient();
 
   const [rows, setRows] = useState(dimensions.rows);
