@@ -30,7 +30,6 @@ function AppContent() {
           <div className="flex flex-col gap-4 w-full">
             <div className="lg:col-span-9">
               <div className="space-y-4">
-                {/* Board Container - GameBoard and ProgressStream side by side when streaming */}
                 <div className="flex flex-col gap-4 lg:flex-row">
                   <div className="flex-1">
                     <GameBoard />
