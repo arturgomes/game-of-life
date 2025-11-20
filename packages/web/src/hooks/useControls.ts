@@ -49,7 +49,9 @@ export function useControls() {
       return;
     }
 
-    await getNextGeneration(boardId);
+    // await getNextGeneration(boardId);
+    await getStateAtGeneration(boardId, jumpGeneration);
+    setJumpGeneration(prev => prev + 1)
   };
 
   const handleJumpToGeneration = async () => {
