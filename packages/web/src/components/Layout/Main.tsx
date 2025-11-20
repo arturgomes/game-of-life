@@ -5,7 +5,7 @@ type MainProps = {
 };
 
 export function Main({ children }: MainProps) {
-  return <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>;
+  return <main className="px-4 py-8 mx-auto sm:px-6 lg:px-8">{children}</main>;
 }
 
 type MainContentProps = {
@@ -13,7 +13,7 @@ type MainContentProps = {
 };
 
 export function MainContent({ children }: MainContentProps) {
-  return <div className="bg-white rounded-lg shadow p-6">{children}</div>;
+  return <div className="p-6 bg-white rounded-lg shadow">{children}</div>;
 }
 
 type MainGridProps = {
@@ -21,7 +21,7 @@ type MainGridProps = {
 };
 
 export function MainGrid({ children }: MainGridProps) {
-  return <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">{children}</div>;
+  return <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">{children}</div>;
 }
 
 // Compound pattern exports
