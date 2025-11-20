@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { useControls, useWebSocket } from '../hooks';
 import type { FinalStateResult } from '../types';
-import { Card } from './ui';
+import { Button, Card } from './ui';
 
 /**
  * ProgressStream Component - Real-time WebSocket streaming for R4
@@ -30,31 +30,28 @@ function getConnectionStatusText(isConnected: boolean, hasError: boolean): strin
   return 'Connecting...';
 }
 
-function ProgressBar({ percentage }: { percentage: number }) {
-  return (
-    <div className="overflow-hidden w-full h-3 bg-gray-200 rounded-full">
-      <div
-        className="h-3 bg-blue-600 rounded-full transition-all duration-300 ease-out"
-        style={{ width: `${percentage}%` }}
-      />
-    </div>
-  );
-}
-
 export function ProgressStream() {
   const { mode, webSocketUrl, setCurrentBoard, setMode, setWebSocketUrl } = useGame();
-  const { maxAttempts } = useControls(); 
+  const { maxAttempts } = useControls();
+  const [genPerSec, setGenPerSec] = useState<number>(0);
+  const previousGenRef = useRef<{ generation: number; timestamp: number } | null>(null);
 
-  const onComplete = (result: FinalStateResult) => {
+  const onComplete = useCallback((result: FinalStateResult) => {
     setCurrentBoard(result.state);
-    setMode('visualizing'); 
-    setWebSocketUrl(null); 
-  };
+    setMode('visualizing');
+    setWebSocketUrl(null);
+  }, [setCurrentBoard, setMode, setWebSocketUrl]);
 
   const { isConnected, progress, error, disconnect } = useWebSocket({
     url: mode === 'streaming' ? webSocketUrl : null,
     onComplete,
   });
+
+  const handleStop = () => {
+    disconnect();
+    setMode('editor');
+    setWebSocketUrl(null);
+  };
 
   useEffect(() => {
     if (progress?.state) {
@@ -62,36 +59,37 @@ export function ProgressStream() {
     }
   }, [progress, setCurrentBoard]);
 
+
   useEffect(() => {
-    if (error) {
-      setMode('editor');
-      setWebSocketUrl(null);
+    if (progress) {
+      const now = Date.now();
+      if (previousGenRef.current) {
+        const timeDiff = (now - previousGenRef.current.timestamp) / 1000; // seconds
+        const genDiff = progress.generation - previousGenRef.current.generation;
+        if (timeDiff > 0) {
+          const rate = genDiff / timeDiff;
+          setGenPerSec(Math.round(rate * 10) / 10); // Round to 1 decimal
+        }
+      }
+      previousGenRef.current = { generation: progress.generation, timestamp: now };
     }
-  }, [error, setMode, setWebSocketUrl]);
-
-  if (mode !== 'streaming') {
-    return null;
-  }
-
-  const progressPercentage = progress
-    ? Math.min(100, (progress.generation / maxAttempts) * 100)
-    : 0;
+  }, [progress]);
 
   const hasError = Boolean(error);
 
   return (
-    <div className="absolute inset-0 z-20 bg-white bg-opacity-95 backdrop-blur-sm transition-opacity duration-300 ease-in-out animate-in fade-in">
+    <div className="w-full h-full">
       <Card>
         <Card.Header>
-          <div className="flex justify-between items-center">
+          <div className="flex gap-2 justify-between items-center">
             <Card.Title>Final State Calculation</Card.Title>
-            <button
+            <Button
               type="button"
-              onClick={disconnect}
+              onClick={handleStop}
               className="text-sm text-gray-500 hover:text-gray-800"
             >
               Stop
-            </button>
+            </Button>
           </div>
         </Card.Header>
         <Card.Body>
@@ -113,26 +111,28 @@ export function ProgressStream() {
 
             {progress && !error && (
               <>
-                <div className="flex justify-between items-baseline">
-                  <span className="text-sm text-gray-600">Generation:</span>
-                  <span className="text-2xl font-bold text-blue-600">{progress.generation}</span>
+                {/* Prominent Generation Counter */}
+                <div className="py-4 text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                  <div className="mb-1 text-xs tracking-wide text-gray-600 uppercase">
+                    Current Generation
+                  </div>
+                  <div className="text-5xl font-bold tabular-nums text-blue-600 transition-all duration-200 ease-in-out">
+                    {progress.generation.toLocaleString()}
+                  </div>
+                  {genPerSec > 0 && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      <span className="font-mono">{genPerSec}</span> gen/sec
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs text-gray-600">Progress</span>
-                    <span className="text-xs text-gray-600">{progressPercentage.toFixed(1)}%</span>
-                  </div>
-                  <ProgressBar percentage={progressPercentage} />
-                  <div className="flex justify-between items-center mt-1">
-                    <span className="text-xs text-gray-500">0</span>
-                    <span className="text-xs text-gray-500">{maxAttempts}</span>
-                  </div>
-                </div>
-
+                {/* Status Message */}
                 <div className="p-3 text-center bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    Calculating final state... Generation {progress.generation} of max {maxAttempts}
+                    �� Calculating final state...
+                    <span className="ml-2 font-mono">{progress.generation.toLocaleString()}</span>
+                    <span className="mx-1 text-gray-600">/</span>
+                    <span className="font-mono">{maxAttempts.toLocaleString()}</span>
                   </p>
                 </div>
               </>

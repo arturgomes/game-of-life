@@ -52,19 +52,20 @@ export class GameOfLifeWebSocket {
 
       this.ws.onerror = (event) => {
         logger.error('WebSocket', 'Connection error', event);
-        this.callbacks.onError('WebSocket connection error');
+        
+        if (this.ws?.readyState === WebSocket.OPEN) {
+          this.callbacks.onError('WebSocket connection error');
+        }
       };
 
       this.ws.onclose = (event) => {
         logger.info('WebSocket', 'Connection closed', { code: event.code, reason: event.reason });
 
-        // Normal closure (1000) or calculation complete - don't reconnect
         if (event.code === 1000) {
           this.callbacks.onClose();
           return;
         }
 
-        // Abnormal closure - attempt reconnection
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
           logger.error('WebSocket', 'Max reconnection attempts reached');
           this.callbacks.onError('Connection lost. Max reconnection attempts reached.');

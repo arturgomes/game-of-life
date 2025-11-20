@@ -33,7 +33,12 @@ export function useWebSocket({ url, onComplete }: UseWebSocketOptions) {
     const handleMessage = (message: WebSocketMessage) => {
       if (message.type === 'progress') {
         setProgress(message);
-      } else if (message.type === 'final') {
+        setError(null);
+        setIsConnected(true);
+        return;
+      }
+
+      if (message.type === 'final') {
         onComplete({
           status: message.status,
           generation: message.generation,
@@ -41,7 +46,10 @@ export function useWebSocket({ url, onComplete }: UseWebSocketOptions) {
           state: message.state,
         });
         setIsConnected(false);
-      } else if (message.type === 'error') {
+        return;
+      }
+
+      if (message.type === 'error') {
         setError(message.error);
         setIsConnected(false);
       }
