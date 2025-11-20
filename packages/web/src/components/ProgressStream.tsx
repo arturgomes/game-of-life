@@ -18,12 +18,6 @@ import { Card } from './ui';
  * Uses WebSocket for real-time streaming of generation progress
  */
 
-// type ProgressStreamProps = {
-//   wsUrl: string | null;
-//   maxAttempts: number;
-//   onComplete: (result: FinalStateResult) => void;
-// };
-
 function getConnectionStatusClass(isConnected: boolean, hasError: boolean): string {
   if (hasError) return 'bg-red-500';
   if (isConnected) return 'bg-green-500 animate-pulse';
@@ -49,13 +43,12 @@ function ProgressBar({ percentage }: { percentage: number }) {
 
 export function ProgressStream() {
   const { mode, webSocketUrl, setCurrentBoard, setMode, setWebSocketUrl } = useGame();
-  const { maxAttempts } = useControls(); // Get maxAttempts from where it's defined
+  const { maxAttempts } = useControls(); 
 
   const onComplete = (result: FinalStateResult) => {
-    console.log('Final state calculation complete:', result);
-    setCurrentBoard(result.state); // Update board to the final state
-    setMode('visualizing'); // Switch mode to prevent re-triggering
-    setWebSocketUrl(null); // Clear the URL to allow for a new calculation
+    setCurrentBoard(result.state);
+    setMode('visualizing'); 
+    setWebSocketUrl(null); 
   };
 
   const { isConnected, progress, error, disconnect } = useWebSocket({
@@ -72,12 +65,10 @@ export function ProgressStream() {
   useEffect(() => {
     if (error) {
       setMode('editor');
-      // Keep the component visible to show the error, but stop the connection attempt
       setWebSocketUrl(null);
     }
   }, [error, setMode, setWebSocketUrl]);
 
-  // Only render this component when in streaming mode
   if (mode !== 'streaming') {
     return null;
   }
@@ -89,7 +80,7 @@ export function ProgressStream() {
   const hasError = Boolean(error);
 
   return (
-    <div className="transition-opacity duration-300 ease-in-out">
+    <div className="absolute inset-0 z-20 bg-white bg-opacity-95 backdrop-blur-sm transition-opacity duration-300 ease-in-out animate-in fade-in">
       <Card>
         <Card.Header>
           <div className="flex justify-between items-center">
