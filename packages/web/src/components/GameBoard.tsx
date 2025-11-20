@@ -45,9 +45,9 @@ function GameBoardComponent({ editable = true }: GameBoardProps) {
   return (
     <div className="flex justify-center items-center p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
       <div
-        className="grid gap-px border-2 border-gray-500 min-w-80 min-h-80"
+        className="grid gap-px border-2 border-gray-500 min-w-[500px] min-h-80"
         style={{
-          gridTemplateColumns: `repeat(${maxCols}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${maxCols}, minmax(1px, 1fr))`,
           maxWidth: '100%',
           aspectRatio: `${dimensions.cols} / ${dimensions.rows}`,
         }}
