@@ -39,6 +39,7 @@ If you don't want to read it now, jump straight into [download and play](#play).
 - [Code Quality Standards](#code-quality-standards)
 - [Environment Variables](#environment-variables)
 - [Docker Services](#docker-services)
+- [Future Work](#future-work)
 
 ## Requirements
 
@@ -569,6 +570,16 @@ function calculateNextState(board: BoardState): BoardState {
 3. **MongoDB** (source of truth): Persistent, unlimited capacity
 
 
+## Future Work
+
+Ideally, there are a few things we could do in order to make the game better. Here are some ideas:
+
+- At the end of the game, return the identified patterns and its count. Moreover, show the final state count. 
+  - Ex: 2 Beehive, 1 Canoe, 3 Blocks. 315/1000 states.
+- Allow the user to adjust the frequency of messages. Currently, it is hardcoded into 200ms interval.
+- Add a clear board feature. Right now, once the calculation is finished, the state doesn't change to a final one and the user has to refresh the page to restart the game.
+- We should find a better way to create the 2D board, rather than forcing the app to create with a number of rows and columns.
+- Come with a better approach to render the 2D board. This [app](https://playgameoflife.com/) has a nice way of doing it.
 
 ## License
 
