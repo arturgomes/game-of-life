@@ -90,9 +90,7 @@ export function useControls() {
     logger.info('useControls', 'WebSocket URL received', { url: url.webSocketUrl });
 
     setWebSocketUrl(url.webSocketUrl);
-    setTimeout(() => {
-      setMode('streaming');
-    }, 0);
+    setMode('streaming');
   };
 
   return {
