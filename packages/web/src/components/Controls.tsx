@@ -42,7 +42,16 @@ export function Controls() {
   };
 
   return (
-    <div className="flex flex-row gap-4 justify-between">
+    <div className="flex flex-row gap-2 justify-between w-full">
+      <Button onClick={() => createEmptyBoard()} size="sm" variant="secondary" className="w-full">
+        Create 10x10 Board
+      </Button>
+      <Button onClick={handleCreateBoard} size="sm" disabled={!currentBoard} className="w-full">
+        Upload Board
+      </Button>
+      <Button onClick={handleNextGeneration} disabled={!boardId} className="w-full">
+        Next Generation
+      </Button>
       <Button onClick={handleStartFinalState} size="sm" disabled={!boardId} className="w-full">
         Calculate Final State
       </Button>
@@ -50,7 +59,7 @@ export function Controls() {
         <Sheet.Trigger asChild>
           <button
             type="button"
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md hover:bg-blue-700"
           >
             Edit settings
           </button>
@@ -229,7 +238,7 @@ export function Controls() {
 
             <Sheet.Footer>
               <Button type="button" size="md" onClick={handleOpenChange}>
-                Fechar
+                Close
               </Button>
             </Sheet.Footer>
           </Sheet.Content>
