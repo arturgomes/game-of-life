@@ -33,7 +33,6 @@ function getConnectionStatusText(isConnected: boolean, hasError: boolean): strin
 export function ProgressStream() {
   const { mode, webSocketUrl, setCurrentBoard, setMode, setWebSocketUrl } = useGame();
   const { maxAttempts } = useControls();
-  const [genPerSec, setGenPerSec] = useState<number>(0);
   const previousGenRef = useRef<{ generation: number; timestamp: number } | null>(null);
 
   const onComplete = useCallback((result: FinalStateResult) => {
@@ -42,16 +41,12 @@ export function ProgressStream() {
     setWebSocketUrl(null);
   }, [setCurrentBoard, setMode, setWebSocketUrl]);
 
-  const { isConnected, progress, error, disconnect } = useWebSocket({
+  const { isConnected, progress, error } = useWebSocket({
     url: mode === 'streaming' ? webSocketUrl : null,
     onComplete,
   });
 
-  const handleStop = () => {
-    disconnect();
-    setMode('editor');
-    setWebSocketUrl(null);
-  };
+
 
   useEffect(() => {
     if (progress?.state) {
@@ -63,14 +58,6 @@ export function ProgressStream() {
   useEffect(() => {
     if (progress) {
       const now = Date.now();
-      if (previousGenRef.current) {
-        const timeDiff = (now - previousGenRef.current.timestamp) / 1000; // seconds
-        const genDiff = progress.generation - previousGenRef.current.generation;
-        if (timeDiff > 0) {
-          const rate = genDiff / timeDiff;
-          setGenPerSec(Math.round(rate * 10) / 10); // Round to 1 decimal
-        }
-      }
       previousGenRef.current = { generation: progress.generation, timestamp: now };
     }
   }, [progress]);
@@ -83,13 +70,6 @@ export function ProgressStream() {
         <Card.Header>
           <div className="flex gap-2 justify-between items-center">
             <Card.Title>Final State Calculation</Card.Title>
-            <Button
-              type="button"
-              onClick={handleStop}
-              className="text-sm text-gray-500 hover:text-gray-800"
-            >
-              Stop
-            </Button>
           </div>
         </Card.Header>
         <Card.Body>
@@ -112,29 +92,18 @@ export function ProgressStream() {
             {progress && !error && (
               <>
                 {/* Prominent Generation Counter */}
-                <div className="py-4 text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                <div className="flex flex-col items-center py-4 text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                   <div className="mb-1 text-xs tracking-wide text-gray-600 uppercase">
-                    Current Generation
+                    Generation
                   </div>
-                  <div className="text-5xl font-bold tabular-nums text-blue-600 transition-all duration-200 ease-in-out">
+                  <div className="flex flex-row gap-2 items-baseline">
+                  <div className="text-6xl font-extrabold tabular-nums text-blue-600 transition-all duration-200 ease-in-out">
                     {progress.generation.toLocaleString()}
                   </div>
-                  {genPerSec > 0 && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      <span className="font-mono">{genPerSec}</span> gen/sec
-                    </div>
-                  )}
+                  <span className="text-xl font-normal text-gray-500">/{maxAttempts.toLocaleString()}</span>
+                  </div>
                 </div>
-
-                {/* Status Message */}
-                <div className="p-3 text-center bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800">
-                    �� Calculating final state...
-                    <span className="ml-2 font-mono">{progress.generation.toLocaleString()}</span>
-                    <span className="mx-1 text-gray-600">/</span>
-                    <span className="font-mono">{maxAttempts.toLocaleString()}</span>
-                  </p>
-                </div>
+                
               </>
             )}
 
