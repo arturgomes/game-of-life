@@ -27,9 +27,7 @@ function AppContent() {
 
       <Layout.Main>
         <Layout.Main.Content>
-          {/* Main Grid Layout */}
           <div className="flex flex-col gap-4 w-full">
-            {/* Center - Game Board */}
             <div className="lg:col-span-9">
               <div className="space-y-4">
                 {/* Board Container - GameBoard and ProgressStream side by side when streaming */}
@@ -39,7 +37,6 @@ function AppContent() {
                   </div>
                 </div>
 
-                {/* Error Display */}
                 {error && (
                   <div className="p-4 bg-red-50 rounded-lg border border-red-200">
                     <p className="text-sm font-medium text-red-800">{error}</p>
