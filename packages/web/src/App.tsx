@@ -20,37 +20,37 @@ function AppContent() {
       <Layout.Main>
         <Layout.Main.Content>
           {/* Main Grid Layout */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 w-full">
             {/* Center - Game Board */}
             <div className="lg:col-span-9">
               <div className="space-y-4">
                 {/* Mode Indicator */}
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex justify-between items-center px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
                   <span className="text-sm text-gray-600">Mode:</span>
-                  <span className="text-sm font-mono font-semibold text-blue-600">
+                  <span className="font-mono text-sm font-semibold text-blue-600">
                     {mode.toUpperCase()}
                   </span>
                 </div>
 
-                {/* Progress Stream - Only visible in streaming mode */}
-                <ProgressStream />
-
-                {/* Game Board */}
-                <GameBoard />
+                {/* Board Container - GameBoard always visible, ProgressStream overlays when streaming */}
+                <div className="relative">
+                  <GameBoard />
+                  <ProgressStream />
+                </div>
 
                 {/* Error Display */}
                 {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-800 text-sm font-medium">{error}</p>
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-sm font-medium text-red-800">{error}</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Controls and Pattern Library */}
-            <div className="flex flex-row align-bottom gap-4">
+            <div className="flex flex-row gap-4 align-bottom">
               <Controls />
-              <PatternLibrary />
+              
             </div>
           </div>
         </Layout.Main.Content>
